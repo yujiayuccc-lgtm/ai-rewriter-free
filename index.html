@@ -24,7 +24,7 @@
     <div class="result" id="result"></div>
   </div>
   <div class="tg">
-    Unlimited use & API Key → Telegram: <a href=" " target="_blank">@你的TG用户名</a >
+    Unlimited use & API Key → Telegram: <a href=" " target="_blank">@yuccc</a >
   </div>
 
  <script>
@@ -44,13 +44,17 @@
       // 2. 加入 try...catch 捕获错误，防止页面卡死
       try {
         // 【注意！】下面必须换成你真实的 API 接口地址
-        const res = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1", {
+        const res = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // 【注意！】如果是真实的 API，通常还需要加上 Authorization 密钥头，例如：
-            "Authorization": "sk-74787b99ed914467a65faac8aa66c517"
+            "Authorization": "Bearer sk-74787b99ed914467a65faac8aa66c517" // 注意加上 Bearer
           },
+          body: JSON.stringify({
+            model: "qwen-plus", // 使用正确的模型名
+            messages: [{role: "user", content: "Paraphrase this text: " + text}]
+          })
+        });,
           body: JSON.stringify({
             model: "qwen3.7-plus", // 如果你用的是其他模型（比如 deepseek-chat），这里也要改
             messages: [{role: "user", content: "Paraphrase this text: " + text}]
