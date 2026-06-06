@@ -27,30 +27,53 @@
     Unlimited use & API Key → Telegram: <a href=" " target="_blank">@你的TG用户名</a >
   </div>
 
-  <script>
+ <script>
     let count = 0;
     async function rewrite() {
       if(count >= 3) {
         document.getElementById("result").innerText = "Daily limit reached. DM Telegram for unlimited.";
         return;
       }
+      
       let text = document.getElementById("input").value;
       if(!text) return alert("Enter text");
+      
+      // 1. 设置加载状态
       document.getElementById("result").innerText = "Processing...";
 
-      // 你换成自己的LLM接口即可
-      const res = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [{role:"user",content:"Paraphrase this text: "+text}]
-        })
-      });
-      const data = await res.json();
-      let out = data.choices?.[0]?.message?.content || "Error";
-      document.getElementById("result").innerText = out;
-      count++;
+      // 2. 加入 try...catch 捕获错误，防止页面卡死
+      try {
+        // 【注意！】下面必须换成你真实的 API 接口地址
+        const res = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // 【注意！】如果是真实的 API，通常还需要加上 Authorization 密钥头，例如：
+            "Authorization": "sk-74787b99ed914467a65faac8aa66c517"
+          },
+          body: JSON.stringify({
+            model: "qwen3.7-plus", // 如果你用的是其他模型（比如 deepseek-chat），这里也要改
+            messages: [{role: "user", content: "Paraphrase this text: " + text}]
+          })
+        });
+
+        // 检查服务器是否返回了正常的状态码 (如 200)
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        
+        // 解析大模型返回的数据
+        let out = data.choices?.[0]?.message?.content || "API返回的数据格式不对";
+        document.getElementById("result").innerText = out;
+        count++;
+
+      } catch (error) {
+        // 如果发生网络错误或接口报错，会显示在这里，不再卡死
+        console.error("请求报错:", error);
+        document.getElementById("result").innerText = "请求失败，请检查 F12 控制台报错信息内容。\n错误原因: " + error.message;
+      }
     }
   </script>
 </body>
